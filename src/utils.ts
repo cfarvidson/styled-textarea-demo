@@ -5,7 +5,11 @@ export const validateRow = (text: string) => {
     return true;
   }
 
-  return false;
+  if (text?.toLocaleLowerCase().includes("bad")) {
+    return false;
+  }
+
+  return null;
 };
 
 export const validateHtml = (html: string) => {
@@ -21,6 +25,10 @@ export const validateHtml = (html: string) => {
 
     // Start by clearing the classes
     $(element).removeAttr("class");
+    // Skip formatting if the valid is null
+    if (isValid === null) {
+      return;
+    }
     if (isValid) {
       $(element).addClass("bg-green-200");
     } else {
@@ -43,4 +51,15 @@ export const convertToText = (html: string) => {
     }
   });
   return plain;
+};
+
+export const convertTextToHtml = (text: string) => {
+  const $ = Cheerio.load("<div></div>");
+  const lines = text.split("\n");
+  lines.forEach((line) => {
+    const pElement = $("<p>").text(line);
+    $("div").append(pElement);
+  });
+
+  return $("div").html();
 };

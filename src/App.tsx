@@ -1,8 +1,8 @@
-import { useState, useRef, useCallback } from "react";
-import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
+import { useState, useRef, useEffect } from "react";
+import ContentEditable from "react-contenteditable";
 
 import "./App.css";
-import { convertToText, validateHtml } from "./utils";
+import { convertTextToHtml, convertToText, validateHtml } from "./utils";
 
 const DEFAULT_VALUE = "<p>foo good<p><p>bar bad</p>";
 
@@ -11,12 +11,13 @@ function App() {
   const [text, setText] = useState(convertToText(DEFAULT_VALUE));
   const ref = useRef(null);
 
-  const handleChange = useCallback((e: ContentEditableEvent) => {
-    const newHtml = validateHtml(e.target.value);
-
-    setHtmlContent(newHtml);
-    setText(convertToText(newHtml));
-  }, []);
+  useEffect(() => {
+    const newHtml = validateHtml(htmlContent);
+    if (newHtml !== htmlContent) {
+      setHtmlContent(newHtml);
+      setText(convertToText(htmlContent));
+    }
+  }, [htmlContent]);
 
   return (
     <div className="h-screen w-screen flex justify-center p-10 flex gap-2">
@@ -26,8 +27,16 @@ function App() {
           className="bg-white p-2 w-64 h-full text-left rounded border border-2"
           innerRef={ref}
           html={htmlContent}
+          onPaste={(e) => {
+            e.preventDefault();
+            const pastedText = e.clipboardData.getData("text/plain");
+            const html = convertTextToHtml(pastedText);
+            if (html) {
+              setHtmlContent(html);
+            }
+          }}
           disabled={false}
-          onChange={handleChange}
+          onChange={(e) => setHtmlContent(e.target.value)}
           tagName="div"
         />
       </div>
