@@ -1,5 +1,6 @@
 import { useState, useRef, useMemo } from "react";
 import ContentEditable from "react-contenteditable";
+import { useDebounce } from "react-use";
 
 import "./App.css";
 import { convertTextToHtml, convertToText, validateHtml } from "./utils";
@@ -13,6 +14,17 @@ function App() {
   const text = useMemo(() => {
     return convertToText(htmlContent);
   }, [htmlContent]);
+
+  useDebounce(
+    () => {
+      const validated = validateHtml(htmlContent);
+      if (validated !== htmlContent) {
+        setHtmlContent(validated);
+      }
+    },
+    1000,
+    [htmlContent]
+  );
 
   return (
     <div className="h-screen w-screen flex justify-center p-10 flex gap-2">
@@ -32,8 +44,7 @@ function App() {
           }}
           disabled={false}
           onChange={(e) => {
-            const newHtml = validateHtml(e.target.value);
-            setHtmlContent(newHtml);
+            setHtmlContent(e.target.value);
           }}
           tagName="div"
         />
