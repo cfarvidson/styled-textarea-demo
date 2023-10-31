@@ -38,7 +38,7 @@ export const validateHtml = (html: string) => {
 
   // Now, you can access the modified HTML using $.html()
   const modifiedHTML = $("body").html();
-  return modifiedHTML;
+  return modifiedHTML || "";
 };
 
 export const convertToText = (html: string) => {
