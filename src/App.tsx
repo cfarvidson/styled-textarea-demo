@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useMemo } from "react";
 import ContentEditable from "react-contenteditable";
 
 import "./App.css";
@@ -8,15 +8,10 @@ const DEFAULT_VALUE = "<p>foo good<p><p>bar bad</p>";
 
 function App() {
   const [htmlContent, setHtmlContent] = useState(validateHtml(DEFAULT_VALUE));
-  const [text, setText] = useState(convertToText(DEFAULT_VALUE));
   const ref = useRef(null);
 
-  useEffect(() => {
-    const newHtml = validateHtml(htmlContent);
-    if (newHtml !== htmlContent) {
-      setHtmlContent(newHtml);
-      setText(convertToText(htmlContent));
-    }
+  const text = useMemo(() => {
+    return convertToText(htmlContent);
   }, [htmlContent]);
 
   return (
@@ -36,7 +31,10 @@ function App() {
             }
           }}
           disabled={false}
-          onChange={(e) => setHtmlContent(e.target.value)}
+          onChange={(e) => {
+            const newHtml = validateHtml(e.target.value);
+            setHtmlContent(newHtml);
+          }}
           tagName="div"
         />
       </div>
